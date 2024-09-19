@@ -16,6 +16,7 @@ st.set_page_config(
 )
 st.title("Klaipėdos uosto rinkliavos asistentas")
 
+# For debugging purposes (remove in production)
 st.write("OpenAI API Key:", config.OPENAI_API_KEY)
 
 # Initialize session state variables
@@ -41,7 +42,11 @@ if user_input:
     stream_container = st.empty()
     stream_handler = StreamHandler(stream_container)
 
-    output = st.session_state['chatbot'].ask(user_input, st.session_state['session_id'], stream_handler)
+    output = st.session_state['chatbot'].ask(
+        user_input,
+        st.session_state['session_id'],
+        stream_handler
+    )
 
     st.session_state.generated.append(output)
 
