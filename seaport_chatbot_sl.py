@@ -4,7 +4,6 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st
-from streamlit_chat import message
 from backend.llm import LLM, StreamHandler
 from backend.vectorstore import load_vector_store
 from backend.config import config
@@ -28,23 +27,37 @@ if 'chatbot' not in st.session_state:
     vector_store = load_vector_store(index_name)
     st.session_state['chatbot'] = LLM(vector_store)
 
-# User input
-user_input = st.text_input("You:", key="user_input")
+# Display chat history
+for i in range(len(st.session_state['past'])):
+    with st.chat_message("user", avatar="🧑"):
+        st.markdown(st.session_state['past'][i])
+    with st.chat_message("assistant", avatar="🚢"):
+        st.markdown(st.session_state['generated'][i])
 
-if user_input:
-    st.session_state.past.append(user_input)
+if prompt := st.chat_input("Type your message here..."):
+    st.session_state.past.append(prompt)
+    with st.chat_message("user", avatar="🧑"):
+        st.markdown(prompt)
 
-    message(user_input, is_user=True, key=f"{len(st.session_state.past)}_user")
+    with st.chat_message("assistant", avatar="🚢"):
+        message_placeholder = st.empty()
+        full_response = {"content": ""}
 
-    stream_container = st.empty()
-    stream_handler = StreamHandler(stream_container)
+        class CustomStreamHandler(StreamHandler):
+            def __init__(self, container):
+                super().__init__(container)
+                self.container = container
 
-    output = st.session_state['chatbot'].ask(
-        user_input,
-        st.session_state['session_id'],
-        stream_handler
-    )
+            def on_llm_new_token(self, token: str, **kwargs) -> None:
+                full_response["content"] += token
+                self.container.markdown(full_response["content"])
 
-    st.session_state.generated.append(output)
+        stream_handler = CustomStreamHandler(message_placeholder)
 
-st.empty()
+        output = st.session_state['chatbot'].ask(
+            prompt,
+            st.session_state['session_id'],
+            stream_handler
+        )
+
+        st.session_state.generated.append(output)
