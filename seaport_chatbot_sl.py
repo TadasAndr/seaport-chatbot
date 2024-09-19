@@ -17,7 +17,7 @@ st.set_page_config(
 st.title("Klaipėdos uosto rinkliavos asistentas")
 
 # For debugging purposes (remove in production)
-st.write("OpenAI API Key:", config.OPENAI_API_KEY)
+st.write("OpenAI API Key:", config.PINECONE_API_KEY)
 
 # Initialize session state variables
 if 'generated' not in st.session_state:

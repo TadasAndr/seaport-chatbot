@@ -1,32 +1,39 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Any, Dict
+import os
+from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
 
-def streamlit_secrets_settings_source(settings: BaseSettings) -> Dict[str, Any]:
-    """
-    A settings source that loads variables from Streamlit secrets.
-    """
-    try:
-        import streamlit as st
-        return dict(st.secrets)
-    except ImportError:
-        return {}
+def is_streamlit_cloud():
+    return os.environ.get('STREAMLIT_RUNTIME') == 'streamlit_cloud'
+
+if not is_streamlit_cloud():
+    load_dotenv()
 
 class Settings(BaseSettings):
     OPENAI_API_KEY: str
     PINECONE_API_KEY: str
     RETRIEVER_K: int = 5
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="allow",
-        # Customize sources to include Streamlit secrets
-        customise_sources=lambda init_settings, env_settings, file_secret_settings: (
-            init_settings,
-            streamlit_secrets_settings_source,
-            env_settings,
-            file_secret_settings,
-        ),
-    )
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
-config = Settings()
+    @classmethod
+    def load(cls):
+        if is_streamlit_cloud():
+            import streamlit as st
+            env_vars = {}
+            for field in cls.__fields__:
+                value = st.secrets.get(field)
+                if value is not None:
+                    env_vars[field] = value
+        else:
+            env_vars = {field: os.getenv(field) for field in cls.__fields__ if os.getenv(field) is not None}
+        
+        return cls(**env_vars)
+
+# Create the config object
+try:
+    config = Settings.load()
+except Exception as e:
+    print(f"Error loading configuration: {str(e)}")
+    raise
