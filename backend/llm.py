@@ -18,7 +18,7 @@ class LLM:
         self.vector_store = vector_store
         self.llm = ChatOpenAI(
             temperature=0,
-            model_name="gpt-4-turbo",
+            model_name="gpt-4o",
             streaming=True
         )
         self.setup_chain()
