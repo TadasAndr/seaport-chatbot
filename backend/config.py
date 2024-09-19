@@ -2,6 +2,7 @@ import os
 import streamlit as st
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
+from collections.abc import Mapping  # Import Mapping here
 
 load_dotenv()
 
@@ -40,9 +41,9 @@ class Settings(BaseSettings):
         self.OPENAI_API_KEY = st.secrets.get("openai", "")
         self.PINECONE_API_KEY = st.secrets.get("pinecone", "")
         
-        # Handle the case where retriever might be an AttrDict
+        # Handle the case where retriever might be an AttrDict or dict
         retriever_value = st.secrets.get("retriever")
-        if isinstance(retriever_value, dict):
+        if isinstance(retriever_value, Mapping):
             self.RETRIEVER_K = int(retriever_value.get("K", 5))
         else:
             self.RETRIEVER_K = int(retriever_value) if retriever_value is not None else 5
