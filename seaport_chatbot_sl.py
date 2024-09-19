@@ -7,7 +7,7 @@ import streamlit as st
 from streamlit_chat import message
 from backend.llm import LLM, StreamHandler
 from backend.vectorstore import load_vector_store
-from backendconfig import config
+from backend.config import config
 import uuid
 
 st.set_page_config(
