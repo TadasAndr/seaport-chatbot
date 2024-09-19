@@ -39,7 +39,13 @@ class Settings(BaseSettings):
         # Always try to use Streamlit secrets first
         self.OPENAI_API_KEY = st.secrets.get("openai", "")
         self.PINECONE_API_KEY = st.secrets.get("pinecone", "")
-        self.RETRIEVER_K = int(st.secrets.get("retriever", 5))
+        
+        # Handle the case where retriever might be an AttrDict
+        retriever_value = st.secrets.get("retriever")
+        if isinstance(retriever_value, dict):
+            self.RETRIEVER_K = int(retriever_value.get("K", 5))
+        else:
+            self.RETRIEVER_K = int(retriever_value) if retriever_value is not None else 5
         
         # If Streamlit secrets are not set, fall back to environment variables
         if not self.OPENAI_API_KEY:
