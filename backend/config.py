@@ -36,16 +36,18 @@ class Settings(BaseSettings):
         
         print("\nInitializing Settings...")
         
-        if 'STREAMLIT_SHARING_MODE' in os.environ:
-            print("Running on Streamlit Cloud")
-            self.OPENAI_API_KEY = st.secrets.get("OPENAI", {}).get("API_KEY", "") or st.secrets.get("OPENAI_API_KEY", "")
-            self.PINECONE_API_KEY = st.secrets.get("PINECONE", {}).get("API_KEY", "") or st.secrets.get("PINECONE_API_KEY", "")
-            self.RETRIEVER_K = st.secrets.get("RETRIEVER", {}).get("K", 5) or st.secrets.get("RETRIEVER_K", 5)
-        else:
-            print("Running locally")
-            self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", self.OPENAI_API_KEY)
-            self.PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", self.PINECONE_API_KEY)
-            self.RETRIEVER_K = int(os.getenv("RETRIEVER_K", self.RETRIEVER_K))
+        # Always try to use Streamlit secrets first
+        self.OPENAI_API_KEY = st.secrets.get("openai", "")
+        self.PINECONE_API_KEY = st.secrets.get("pinecone", "")
+        self.RETRIEVER_K = int(st.secrets.get("retriever", 5))
+        
+        # If Streamlit secrets are not set, fall back to environment variables
+        if not self.OPENAI_API_KEY:
+            self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+        if not self.PINECONE_API_KEY:
+            self.PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "")
+        if self.RETRIEVER_K == 5:  # Default value
+            self.RETRIEVER_K = int(os.getenv("RETRIEVER_K", 5))
 
         print(f"OPENAI_API_KEY set: {'Yes' if self.OPENAI_API_KEY else 'No'}")
         print(f"PINECONE_API_KEY set: {'Yes' if self.PINECONE_API_KEY else 'No'}")
