@@ -5,7 +5,6 @@ import streamlit as st
 import logging
 
 load_dotenv()
-logging.info(f"RETRIEVER_K: {config.RETRIEVER_K}")
 
 class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
@@ -35,3 +34,5 @@ class Settings(BaseSettings):
             raise ValueError("PINECONE_API_KEY is not set")
 
 config = Settings()
+
+logging.info(f"RETRIEVER_K: {config.RETRIEVER_K}")
