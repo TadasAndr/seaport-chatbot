@@ -10,10 +10,10 @@ from backend.config import config
 import uuid
 
 st.set_page_config(
-    page_title="Klaipėdos uosto rinkliavos asistentas",
+    page_title="Klaipėdos valstybinio jūrų uosto direkcijos pokalbiai su DI",
     page_icon="🚢"
 )
-st.title("Klaipėdos uosto rinkliavos asistentas")
+st.title("Klaipėdos valstybinio jūrų uosto direkcijos pokalbiai su DI")
 
 # Initialize session state variables
 if 'generated' not in st.session_state:
