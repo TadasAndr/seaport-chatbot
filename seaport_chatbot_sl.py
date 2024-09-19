@@ -16,6 +16,8 @@ st.set_page_config(
 )
 st.title("Klaipėdos uosto rinkliavos asistentas")
 
+st.write("OpenAI API Key:", config.OPENAI_API_KEY)
+
 # Initialize session state variables
 if 'generated' not in st.session_state:
     st.session_state['generated'] = []
